@@ -553,6 +553,19 @@
     margin-top: 16px;
     }
 
+    /* ===== Softer payment selector ===== */
+    #signupPay{
+    background:#f9fafb;
+    border-radius: 10px;
+    box-shadow: inset 0 0 0 1px #cbd5e1;
+    }
+
+    #signupPay:focus{
+    box-shadow:
+        0 0 0 4px rgba(37,99,235,.15),
+        inset 0 0 0 1px #2563eb;
+    }
+
   </style>
 </head>
 <body autocomplete="off">
@@ -701,6 +714,16 @@
                  placeholder="1234" style="width:160px;text-align:center;">
         </div>
 
+        <div style="margin-bottom:8px;">
+          <label for="signupPay" style="font-size:14px;">How will you send your deposit?</label>
+          <select id="signupPay">
+            <option value="">-- Select --</option>
+            <option value="PayPal">PayPal</option>
+            <option value="Cash App">Cash App</option>
+            <option value="Venmo">Venmo</option>
+          </select>
+        </div>
+
         <div style="text-align:center;">
           <button type="submit">✅ Submit Sign Up</button>
         </div>
@@ -724,6 +747,7 @@
       </div>
     </div>
   </div>
+  
 
   <!-- Public list card -->
   <div class="card">
@@ -851,6 +875,12 @@ const db = firebase.firestore();
 // ===== CONFIG: Admin code for unlocking admin panel =====
 const ADMIN_CODE = "Pink0209";  // change this to your secret
 // ========================================================
+
+const PAYMENT_LINKS = {
+  "PayPal": "PASTE_PAYPAL_LINK_HERE",
+  "Cash App": "PASTE_CASHAPP_LINK_HERE",
+  "Venmo": "PASTE_VENMO_LINK_HERE",
+};
 
 function regionForState(st) {
   const up = (st || "").toUpperCase();
@@ -1027,6 +1057,7 @@ signupForm.addEventListener("submit", async (e) => {
     signupStatus.classList.add("error");
     return;
   }
+  
 
   // Normalize/format name + address for display/storage
   name = formatName(name);
@@ -1059,17 +1090,15 @@ signupForm.addEventListener("submit", async (e) => {
       assignedAt: null
     });
 
+    openPayment(payment);
+
     signupStatus.innerHTML = `
     🎉 <strong>Signup complete!</strong><br>
-    Please send your deposit using one of the methods below.<br>
+    A payment page is opening in a new tab based on the method you selected.<br>
     After sending, use your 4-digit code to mark deposit as sent.
-    <div style="margin-top:10px;">
-        <button class="btn-secondary" onclick="openPayment('PayPal')">Pay with PayPal</button>
-        <button class="btn-secondary" onclick="openPayment('CashApp')">Pay with Cash App</button>
-        <button class="btn-secondary" onclick="openPayment('Venmo')">Pay with Venmo</button>
-    </div>
     `;
     signupStatus.classList.add("success");
+
 
     signupForm.reset();
     signupForm.style.display = "none";
@@ -1904,17 +1933,20 @@ clearAllBtn.addEventListener("click", async () => {
 });
 
 function openPayment(method) {
-    const links = {
-        PayPal: "https://paypal.me/donnapevey1",         // replace w/ real link
-        CashApp: "https://cash.app/$donnapevey",        // replace w/ real cashtag
-        Venmo: "https://venmo.com/u/Donnapevey00"       // replace w/ real link
-    };
+  const links = {
+    "PayPal": "https://paypal.me/donnapevey1",
+    "Cash App": "https://cash.app/$donnapevey",
+    "Venmo": "https://venmo.com/u/Donnapevey00"
+  };
 
-    const url = links[method];
-    if (url) {
-        window.open(url, "_blank", "noopener,noreferrer");
-    }
+  const url = links[method];
+  if (url) {
+    window.open(url, "_blank", "noopener,noreferrer");
+  } else {
+    alert("Payment link not set for: " + method);
+  }
 }
+
 
 </script>
 </body>
