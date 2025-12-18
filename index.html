@@ -566,6 +566,20 @@
         inset 0 0 0 1px #2563eb;
     }
 
+    /* ===== Public table alignment polish ===== */
+    #publicTable { table-layout: fixed; }
+    #publicTable th:nth-child(1),
+    #publicTable td:nth-child(1) { width: 44px; text-align: center; }
+
+    #publicTable th:nth-child(3),
+    #publicTable td:nth-child(3) { width: 180px; }
+
+    #publicTable th:nth-child(4),
+    #publicTable td:nth-child(4) { width: 160px; }
+
+    #publicTable td { vertical-align: middle; }
+    #publicTable td:nth-child(2) { word-break: break-word; }
+    
   </style>
 </head>
 <body autocomplete="off">
@@ -745,7 +759,6 @@
           <th>#</th>
           <th>Name</th>
           <th>State</th>
-          <th>Payment Method</th>
           <th>Deposit (Admin)</th>
         </tr>
       </thead>
@@ -1263,6 +1276,31 @@ submitTrackingBtn.addEventListener("click", async () => {
 
 // ========== REAL-TIME LISTENERS FOR PUBLIC + ADMIN TABLES ==========
 
+function fullStateName(code) {
+  const c = (code || "").toUpperCase().trim();
+  const map = {
+    // US
+    AL:"Alabama", AK:"Alaska", AZ:"Arizona", AR:"Arkansas", CA:"California",
+    CO:"Colorado", CT:"Connecticut", DE:"Delaware", FL:"Florida", GA:"Georgia",
+    HI:"Hawaii", ID:"Idaho", IL:"Illinois", IN:"Indiana", IA:"Iowa",
+    KS:"Kansas", KY:"Kentucky", LA:"Louisiana", ME:"Maine", MD:"Maryland",
+    MA:"Massachusetts", MI:"Michigan", MN:"Minnesota", MS:"Mississippi", MO:"Missouri",
+    MT:"Montana", NE:"Nebraska", NV:"Nevada", NH:"New Hampshire", NJ:"New Jersey",
+    NM:"New Mexico", NY:"New York", NC:"North Carolina", ND:"North Dakota", OH:"Ohio",
+    OK:"Oklahoma", OR:"Oregon", PA:"Pennsylvania", RI:"Rhode Island", SC:"South Carolina",
+    SD:"South Dakota", TN:"Tennessee", TX:"Texas", UT:"Utah", VT:"Vermont",
+    VA:"Virginia", WA:"Washington", WV:"West Virginia", WI:"Wisconsin", WY:"Wyoming",
+    DC:"District of Columbia",
+
+    // Canada
+    AB:"Alberta", BC:"British Columbia", MB:"Manitoba", NB:"New Brunswick",
+    NL:"Newfoundland and Labrador", NS:"Nova Scotia", NT:"Northwest Territories",
+    NU:"Nunavut", ON:"Ontario", PE:"Prince Edward Island", QC:"Quebec",
+    SK:"Saskatchewan", YT:"Yukon"
+  };
+  return map[c] || (code || "—");
+}
+
 const publicTableBody = document.getElementById("publicTableBody");
 const adminTableBody = document.getElementById("adminTableBody");
 const adminStatus = document.getElementById("adminStatus");
@@ -1279,21 +1317,21 @@ db.collection("signups")
       const d = doc.data();
 
       const name = d.name || "";
-      const stateDisplay = d.addressStateCode || d.state || "";
+      const stateCode = d.addressStateCode || d.state || "";
+      const stateFull = fullStateName(stateCode);
+
       const pm = d.paymentMethod || "";
       const depositApproved = !!d.depositApproved;
-      const trackingSubmitted = !!d.trackingSubmitted;
       const trackingNumber = d.trackingNumber || "";
       const addressFull = d.addressFull || d.address || "";
       const code = d.code || "";
 
-      // Public row
+      // ===== Public row (NO payment method) =====
       const trPub = document.createElement("tr");
       trPub.innerHTML = `
         <td>${idx}</td>
         <td>${name}</td>
-        <td>${stateDisplay}</td>
-        <td>${pm || "—"}</td>
+        <td>${stateFull}</td>
         <td>
           <span class="badge ${depositApproved ? "badge-approved" : "badge-not-approved"}">
             ${depositApproved ? "Approved" : "Pending"}
@@ -1302,14 +1340,14 @@ db.collection("signups")
       `;
       rowsPublic.push(trPub);
 
-      // Admin row
+      // ===== Admin row (keep payment method + tracking) =====
       const trAdmin = document.createElement("tr");
       trAdmin.setAttribute("data-id", doc.id);
       trAdmin.innerHTML = `
         <td>${idx}</td>
         <td>${name}</td>
         <td style="max-width:260px;white-space:normal;">${addressFull}</td>
-        <td>${stateDisplay}</td>
+        <td>${stateCode}</td>
         <td>${code || "—"}</td>
         <td>${pm || "—"}</td>
         <td>
