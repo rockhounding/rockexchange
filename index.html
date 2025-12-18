@@ -759,8 +759,10 @@
         <div style="text-align:center;">
             <button type="submit">✅ Submit Sign Up</button>
         </div>
+        </form>
 
-      <div id="signupStatus" class="status"></div>
+        <div id="signupStatus" class="status"></div>
+
     </div>
   </div>
   
@@ -1103,18 +1105,21 @@ signupForm.addEventListener("submit", async (e) => {
       assignedAt: null
     });
 
-    openPayment(payment);
-
+     // ✅ SUCCESS MESSAGE (this is the part you were missing)
     signupStatus.innerHTML = `
-    🎉 <strong>Signup complete!</strong><br>
-    A payment page is opening in a new tab based on the method you selected.<br>
+      ✅ <strong>Sign-up successful!</strong><br>
+      Opening <strong>${payment}</strong> in a new tab for your deposit now.
     `;
     signupStatus.classList.add("success");
 
-
+    // Hide/reset form after message is set
     signupForm.reset();
     signupForm.style.display = "none";
     showSignupBtn.style.display = "inline-block";
+
+    // Open payment a moment later so the message renders first
+    setTimeout(() => openPayment(payment), 150);
+
   } catch (err) {
     console.error(err);
     signupStatus.textContent = "Error saving sign-up. Please try again or contact the organizer.";
@@ -1451,7 +1456,7 @@ function attachAdminRowHandlers() {
     if (!docId) return;
 
     // Approve badge
-    const approveBadge = row.querySelector("td:nth-child(7) .badge");
+    const approveBadge = row.querySelector(".badge.clickable");
     if (approveBadge) {
       approveBadge.addEventListener("click", async () => {
         const alreadyApproved = approveBadge.classList.contains("badge-approved");
