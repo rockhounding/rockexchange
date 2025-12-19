@@ -844,22 +844,9 @@
   <div class="card">
     <div class="admin-header">
       <h2>Organizer(Admin)</h2>
-      <button id="toggleAdminBtn" class="btn-secondary" style="margin-top:0;">Hide Admin Panel</button>
-    </div>
 
-    <!-- Locked view -->
-    <div id="adminLocked" style="margin-top:12px; display:block;">
-      <div class="code-row" style="justify-content:flex-start;">
-        <label for="adminCodeInput" style="font-size:13px;">Admin code:</label>
-        <input id="adminCodeInput" type="password" maxlength="16" placeholder="••••"
-               autocomplete="new-password">
-        <button id="adminUnlockBtn">Unlock</button>
-      </div>
-      <div id="adminLockStatus" class="status" style="text-align:left;"></div>
-      <div class="admin-small-note">
-        This area is for the organizer only.
-      </div>
-    </div>
+    <button id="adminLoginBtn" onclick="adminLogin()">Admin Sign In</button>
+    <button id="adminLogoutBtn" onclick="adminLogout()" style="display:none;">Sign Out</button>
 
     <!-- Unlocked admin tools -->
     <div id="adminUnlocked" style="display:none;margin-top:14px;">
@@ -924,6 +911,7 @@
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
 <script>
 // ===== 1. Firebase config – your project =====
@@ -940,10 +928,42 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+// ===== Admin Google Sign-In (COMPAT) =====
+const auth = firebase.auth();
+const provider = new firebase.auth.GoogleAuthProvider();
 
-// ===== CONFIG: Admin code for unlocking admin panel =====
-const ADMIN_CODE = "Pink0209";  // change this to your secret
-// ========================================================
+function adminLogin() {
+  auth.signInWithPopup(provider)
+    .catch(err => {
+      console.error("Admin login failed:", err);
+      alert("Admin sign-in failed.");
+    });
+}
+
+function adminLogout() {
+  auth.signOut();
+}
+
+auth.onAuthStateChanged(user => {
+  const adminPanel = document.getElementById("adminPanel");
+  const loginBtn = document.getElementById("adminLoginBtn");
+  const logoutBtn = document.getElementById("adminLogoutBtn");
+
+  if (user) {
+    console.log("Admin signed in:", user.email);
+
+    // Show admin UI
+    if (adminPanel) adminPanel.style.display = "block";
+    if (loginBtn) loginBtn.style.display = "none";
+    if (logoutBtn) logoutBtn.style.display = "inline-block";
+  } else {
+    // Hide admin UI
+    if (adminPanel) adminPanel.style.display = "none";
+    if (loginBtn) loginBtn.style.display = "inline-block";
+    if (logoutBtn) logoutBtn.style.display = "none";
+  }
+});
+// =======================================
 
 const PAYMENT_LINKS = {
   "PayPal": "PASTE_PAYPAL_LINK_HERE",
