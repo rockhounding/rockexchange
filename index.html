@@ -844,9 +844,25 @@
   <div class="card">
     <div class="admin-header">
       <h2>Organizer(Admin)</h2>
+      <button id="toggleAdminBtn" class="btn-secondary" style="margin-top:0;">Hide Admin Panel</button>
+    </div>
 
     <button id="adminLoginBtn" onclick="adminLogin()">Admin Sign In</button>
     <button id="adminLogoutBtn" onclick="adminLogout()" style="display:none;">Sign Out</button>
+    
+    <!-- Locked view -->
+    <div id="adminLocked" style="margin-top:12px; display:block;">
+      <div class="code-row" style="justify-content:flex-start;">
+        <label for="adminCodeInput" style="font-size:13px;">Admin code:</label>
+        <input id="adminCodeInput" type="password" maxlength="16" placeholder="••••"
+               autocomplete="new-password">
+        <button id="adminUnlockBtn">Unlock</button>
+      </div>
+      <div id="adminLockStatus" class="status" style="text-align:left;"></div>
+      <div class="admin-small-note">
+        This area is for the organizer only.
+      </div>
+    </div>
 
     <!-- Unlocked admin tools -->
     <div id="adminUnlocked" style="display:none;margin-top:14px;">
